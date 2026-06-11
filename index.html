@@ -323,15 +323,29 @@
        ════════════════════════════════════ -->
   <section class="section mp3-poll" id="mp3-poll" aria-labelledby="poll-heading">
     <div class="section-inner poll-inner">
-      <p class="section-label">Quick question</p>
-      <h2 id="poll-heading">Would you listen<br>offline?</h2>
-      <p class="poll-desc">We're exploring downloadable MP3s so you can take your meditations anywhere — no WiFi required. Would that be useful to you?</p>
-      <div class="poll-buttons" id="poll-buttons">
-        <button class="btn-poll" data-response="yes">Yes, definitely</button>
-        <button class="btn-poll" data-response="maybe">Maybe</button>
-        <button class="btn-poll" data-response="no">Not really</button>
-      </div>
-      <p class="poll-thanks" id="poll-thanks" hidden>Thanks for your feedback — we appreciate it.</p>
+      <p class="section-label">Coming soon</p>
+      <h2 id="poll-heading">Want your meditations<br>to go?</h2>
+      <p class="poll-desc">We're working on downloadable MP3s — take your sessions anywhere, no WiFi required. Leave your email and we'll let you know when they're ready.</p>
+      <form class="poll-form" id="poll-form" novalidate>
+        <div class="poll-field">
+          <input
+            type="email"
+            id="poll-email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+            aria-label="Your email address"
+          >
+          <button type="submit" class="btn-poll-submit">Notify me</button>
+        </div>
+        <label class="poll-consent">
+          <input type="checkbox" id="poll-consent" name="consent" required>
+          <span>I agree to receive email updates from Babbling Brook about MP3 downloads. You can unsubscribe at any time. <a href="mailto:hello@babblingbrook.ca">hello@babblingbrook.ca</a></span>
+        </label>
+        <p class="poll-error" id="poll-error" hidden>Please enter a valid email and check the consent box.</p>
+      </form>
+      <p class="poll-thanks" id="poll-thanks" hidden>You're on the list — we'll be in touch when MP3s are ready.</p>
     </div>
   </section>
 
@@ -380,15 +394,18 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6YW9xa253cXp5amFlb2d2Ym9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNDY1MTQsImV4cCI6MjA5MjkyMjUxNH0.zpDL0vnjF_8QuoFsRMXdBwbZSkaWc67CVFRMLYeolkI'
   );
 
-  document.querySelectorAll('.btn-poll').forEach(function(btn) {
-    btn.addEventListener('click', async function() {
-      var pollButtons = document.getElementById('poll-buttons');
-      var pollThanks  = document.getElementById('poll-thanks');
-      pollButtons.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
-      await _sb.from('mp3_interest').insert({ response: btn.dataset.response });
-      pollButtons.hidden = true;
-      pollThanks.hidden  = false;
-    });
+  document.getElementById('poll-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var email   = document.getElementById('poll-email').value.trim();
+    var consent = document.getElementById('poll-consent').checked;
+    var errEl   = document.getElementById('poll-error');
+    if (!email || !consent) { errEl.hidden = false; return; }
+    errEl.hidden = true;
+    var submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    await _sb.from('mp3_interest').insert({ email: email, consent: true, response: 'email_signup' });
+    document.getElementById('poll-form').hidden  = true;
+    document.getElementById('poll-thanks').hidden = false;
   });
 </script>
 </body>
